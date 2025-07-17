@@ -137,7 +137,7 @@ def plot_fidelity_vs_fmax(F_values: np.ndarray, Fmax_values: np.ndarray, k: int)
 
     ax.set_xlabel(r"Initial Fidelity $F$")
     ax.set_ylabel(r"Optimized Fidelity $\mathcal{F}_{\max}$")
-    ax.set_title(rf"$k={k}$", pad=4)
+    ax.set_title(rf"Optimal fidelity vs input fidelities for $k={k}$", pad=4)
 
     ax.set_xlim([0.5, 1.0])
     ax.set_ylim([np.nanmin(Fmax_values) * 0.98, np.nanmax(Fmax_values) * 1.02])
@@ -165,7 +165,7 @@ def plot_phi_fit_vs_theory(fidelity_values: np.ndarray, phi_fit: np.ndarray):
     _create_phi_plot_template(
         fidelity_values, phi_fit, phi_theory,
         method_label=r'Fitted $\phi_{\mathrm{fit}}(f)$',
-        method_color='black',
+        method_color='red',
         title=r"Comparison: Fit vs Theory"
     )
 
@@ -185,7 +185,7 @@ def plot_phi_fit_linear(fidelity_values: np.ndarray, phi_linear_fit: np.ndarray)
     _create_phi_plot_template(
         fidelity_values, phi_linear_fit, phi_theory,
         method_label=r'Linear Fit $\phi_{\mathrm{fit}}(f)$',
-        method_color='black',
+        method_color='turquoise',
         title="Linear Fit vs Theory"
     )
 
