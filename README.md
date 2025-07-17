@@ -1,1 +1,0 @@
-# Entanglement-distillation-optimal-ebit-fidelity-for-isotropic-states-
