@@ -37,7 +37,7 @@ from phi_fitting import (
     phi_fit_extrapolation
 )
 from visualization import (
-    plot_fidelity_vs_fmax,
+    plot_fidelity_vs_fmax_with_theta,
     plot_phi_fit_vs_theory,
     plot_phi_fit_linear,
     plot_phi_numerical,
@@ -61,11 +61,11 @@ def main():
     logger.info("Modular Architecture: quantum_core + data_processing + phi_fitting + visualization")
 
     # ==================== CONFIGURATION ====================
-    k_value = 30  # Number of tensor copies for initial fidelity scan
-    fidelity_values = np.linspace(0.5, 0.95, 100)  # Range of input fidelities
-    k_list = list(range(10, 101, 10))  # Extended k range for asymptotic analysis
+    k_value = 101 # Number of tensor copies for initial fidelity scan
+    fidelity_values = np.linspace(0.5, 0.99, 100)  # Range of input fidelities
+    k_list = list(range(10, 50, 10))  # Extended k range for asymptotic analysis
 
-    logger.info(f"Configuration: k_scan={k_value}, fidelity_range=[0.5, 0.95], k_grid={k_list}")
+    logger.info(f"Configuration: k_scan={k_value}, fidelity_range=[0.5, 0.99], k_grid={k_list}")
 
     # ==================== STEP 1: Single-k Fidelity Optimization Scan ====================
     logger.info(f"Step 1: Performing fidelity scan for k = {k_value}")
@@ -73,7 +73,7 @@ def main():
     F_values, Fmax_values = scan_fidelity_grid(k_value, fidelity_values)
     logger.info("Fidelity scan completed, generating visualization")
     
-    plot_fidelity_vs_fmax(F_values, Fmax_values, k=k_value)
+    plot_fidelity_vs_fmax_with_theta(F_values, Fmax_values, k=k_value)
 
     # ==================== STEP 2: Multi-k Grid Computation ====================
     logger.info("Step 2: Computing F_max grid across multiple k values...")

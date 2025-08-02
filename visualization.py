@@ -13,6 +13,7 @@ Functions:
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.special
 from quantum_core import theoretical_phi
 
 
@@ -116,38 +117,80 @@ def _create_phi_plot_template(fidelity_values: np.ndarray, phi_estimated: np.nda
     plt.show()
 
 
-def plot_fidelity_vs_fmax(F_values: np.ndarray, Fmax_values: np.ndarray, k: int):
+
+def compute_theta(F: float, k: int) -> float:
     """
-    Plot F_max(f) for a given k value using IEEE-style formatting.
+    Compute the analytical lower bound theta(F, k) using the optimal structure of b.
+
+    Args:
+        F (float): Initial fidelity.
+        k (int): Number of copies.
+
+    Returns:
+        float: Value of theta(F, k).
+    """
+    t = int(np.floor(k / 2))  # ⌊k/2⌋
+    theta = 0.0
+    for j in range(t):
+        coeff = scipy.special.comb(k, j)
+        theta += coeff * (F ** (k - j)) * ((1 - F) ** j)
+    # Add the 1/2 * p_t term
+    coeff_t = scipy.special.comb(k, t)
+    theta += 0.5 * coeff_t * (F ** (k - t)) * ((1 - F) ** t)
+    return theta
+
+
+def plot_fidelity_vs_fmax_with_theta(F_values: np.ndarray, Fmax_values: np.ndarray, k: int):
+    """
+    Plot F_max(f) and the analytical lower bound theta(f, k) on the same plot.
 
     Args:
         F_values (np.ndarray): Array of input fidelity values.
-        Fmax_values (np.ndarray): Array of maximum fidelity values.
+        Fmax_values (np.ndarray): Array of maximum fidelity values (from LP).
         k (int): Number of tensor copies.
     """
     _setup_ieee_plot_style()
     fig, ax = plt.subplots(figsize=(3.5, 2.5))  # IEEE column size
 
+    # Plot numerical F_max
     ax.plot(
         F_values,
         Fmax_values,
         label=fr"$\mathcal{{F}}_\max(\rho_F^{{\otimes {k}}})$",
-        color='black'
+        color='black',
+        linewidth=1.5
     )
 
+    # Compute and plot analytical theta(F,k)
+    theta_values = np.array([compute_theta(F, k) for F in F_values])
+    ax.plot(
+        F_values,
+        theta_values,
+        label=fr"Analytical $\theta(F,k)$",
+        color='red',
+        linestyle='--',
+        linewidth=1.5
+    )
+
+    # Setup labels and title
     ax.set_xlabel(r"Initial Fidelity $F$")
     ax.set_ylabel(r"Optimized Fidelity $\mathcal{F}_{\max}$")
-    ax.set_title(rf"Optimal fidelity vs input fidelities for $k={k}$", pad=4)
+    ax.set_title(rf"$\mathcal{{F}}_\max$ and $\theta$ lower bound vs $F$ for $k={k}$", pad=4)
 
+    # Axis styling
     ax.set_xlim([0.5, 1.0])
-    ax.set_ylim([np.nanmin(Fmax_values) * 0.98, np.nanmax(Fmax_values) * 1.02])
-
+    ymin = min(np.nanmin(Fmax_values), np.nanmin(theta_values)) * 0.98
+    ymax = max(np.nanmax(Fmax_values), np.nanmax(theta_values)) * 1.02
+    ax.set_ylim([ymin, ymax])
+    
     ax.legend(loc="best", frameon=False)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
     plt.tight_layout()
     plt.show()
+
+
 
 
 def plot_phi_fit_vs_theory(fidelity_values: np.ndarray, phi_fit: np.ndarray):
@@ -164,9 +207,9 @@ def plot_phi_fit_vs_theory(fidelity_values: np.ndarray, phi_fit: np.ndarray):
     phi_theory = theoretical_phi(fidelity_values)
     _create_phi_plot_template(
         fidelity_values, phi_fit, phi_theory,
-        method_label=r'Fitted $\phi_{\mathrm{fit}}(f)$',
+        method_label=r'Nonlinear Fit $\phi_{\mathrm{fit}}(f)$',
         method_color='red',
-        title=r"Comparison: Fit vs Theory"
+        title=r"Comparison: Nonlinear Fit vs Theory"
     )
 
 
